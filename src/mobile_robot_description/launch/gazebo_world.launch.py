@@ -66,6 +66,7 @@ def generate_launch_description():
                     name='spawn_mobile_robot',
                     output='screen',
                     arguments=[
+                        '-world', 'mobile_robot_world',
                         '-name', 'mobile_robot',
                         '-topic', 'robot_description',
                         '-z', '0.0',
