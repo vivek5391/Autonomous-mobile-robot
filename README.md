@@ -44,6 +44,10 @@ If RViz opens without the model, check that the Fixed Frame is `base_footprint` 
 
 The first milestone is a basic robot description and RViz visualization. Gazebo, sensors, SLAM, and Nav2 will be added in later milestones. Features are not considered complete until they are implemented and tested.
 
+## Gazebo preparation
+
+A minimal Gazebo Sim world and launch file are included as preparation. The robot is not yet spawned into the world, and drive control/LiDAR are still future work. See [docs/gazebo-simulation.md](docs/gazebo-simulation.md) for current status and next steps.
+
 ## Roadmap
 
 See [docs/roadmap.md](docs/roadmap.md).
