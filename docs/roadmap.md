@@ -17,7 +17,8 @@
 - [ ] Verify /scan, /odom, and TF topics in a running simulation
 
 ## Milestone 4 — Mapping
-- [ ] Configure SLAM Toolbox
+- [x] Add starter SLAM Toolbox parameters and launch file
+- [ ] Run SLAM Toolbox with a verified live /scan and odometry/TF
 - [ ] Save and reload a map
 
 ## Milestone 5 — Autonomous navigation
@@ -27,4 +28,4 @@
 
 ## Working rule
 
-Only mark a feature complete after it has been run and checked. The current simulation and sensor files are implementation drafts until tested on Ubuntu 24.04 + ROS 2 Jazzy + Gazebo Sim Harmonic. This is a simulation learning model, not a validated physical robot design.
+Only mark a feature complete after it has been run and checked. The current simulation, sensor, and SLAM files are implementation drafts until tested on Ubuntu 24.04 + ROS 2 Jazzy + Gazebo Sim Harmonic. This is a simulation learning model, not a validated physical robot design.
