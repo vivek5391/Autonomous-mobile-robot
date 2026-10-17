@@ -1,66 +1,125 @@
-# Autonomous Mobile Robot (ROS 2)
+# Autonomous Mobile Robot — ROS 2
 
-A simulation-first differential-drive autonomous mobile robot project built with ROS 2. The goal is to develop the robot step by step, from a clean robot model to mapping and autonomous navigation.
+A simulation-first differential-drive autonomous mobile robot portfolio project. The aim is to build a complete ROS 2 workflow: robot description, Gazebo simulation, teleoperation, LiDAR, odometry/TF, mapping, and autonomous navigation.
 
-## Planned features
+## Tech stack
 
-- Differential-drive robot model using URDF/Xacro
-- Robot visualization in RViz
-- Gazebo Sim world and initial robot-spawn pipeline
-- Simulated 2D LiDAR with ROS 2 scan bridge configuration
-- Wheel odometry bridge configuration
-- SLAM Toolbox mapping preparation
-- Keyboard teleoperation and Nav2 (planned)
+- Ubuntu 24.04 · ROS 2 Jazzy · Gazebo Sim Harmonic
+- URDF/Xacro · RViz2 · ros_gz_sim / ros_gz_bridge
+- Simulated 2D GPU LiDAR · robot_localization
+- SLAM Toolbox · Nav2 · GitHub Actions CI
 
-## Target environment
+## Current status
 
-- Ubuntu 24.04
-- ROS 2 Jazzy
-- Gazebo Sim Harmonic
-- No physical hardware is required for the initial milestones
+**In development; local build and simulation validation are pending.** Repository files have been created and checked through GitHub, but the robot has not yet been launched on a local ROS 2 + Gazebo installation. Treat launch and sensor integration as unverified until the CI build and simulation checks pass.
 
-## Build the workspace
+## 1. Install dependencies
 
-```bash
+On Ubuntu 24.04 with ROS 2 Jazzy configured:
+
+\`\`\`bash
 sudo apt update
-sudo apt install ros-jazzy-xacro ros-jazzy-robot-state-publisher ros-jazzy-joint-state-publisher-gui ros-jazzy-rviz2 ros-jazzy-ros-gz-sim ros-jazzy-ros-gz-bridge ros-jazzy-slam-toolbox
+sudo apt install \
+  ros-jazzy-xacro \
+  ros-jazzy-robot-state-publisher \
+  ros-jazzy-joint-state-publisher-gui \
+  ros-jazzy-rviz2 \
+  ros-jazzy-ros-gz-sim \
+  ros-jazzy-ros-gz-bridge \
+  ros-jazzy-robot-localization \
+  ros-jazzy-slam-toolbox \
+  ros-jazzy-nav2-bringup \
+  ros-jazzy-teleop-twist-keyboard
+\`\`\`
+
+## 2. Clone and build
+
+\`\`\`bash
 mkdir -p ~/amr_ws/src
 cd ~/amr_ws/src
 git clone https://github.com/vivek5391/Autonomous-mobile-robot.git
 cd ~/amr_ws
 source /opt/ros/jazzy/setup.bash
+rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
 colcon build --symlink-install
 source install/setup.bash
-```
+\`\`\`
 
-## View the robot in RViz
+## 3. View the robot model in RViz
 
-```bash
+\`\`\`bash
 ros2 launch mobile_robot_description display.launch.py
-```
+\`\`\`
 
-If RViz opens without the model, check that the Fixed Frame is `base_footprint` and add a **RobotModel** display.
+If the model is missing, check the RViz Fixed Frame (base_footprint) and the RobotModel display.
 
-## Start the simulation
+## 4. Start Gazebo simulation
 
-```bash
+\`\`\`bash
 ros2 launch mobile_robot_description gazebo_world.launch.py
-```
+\`\`\`
 
-The launch file is intended to start Gazebo, publish the robot description, spawn the robot, and bridge `/cmd_vel`, `/odom`, and `/scan`. These steps still need to be verified on a machine with the target ROS/Gazebo installation.
+Check topics in another terminal:
 
-## SLAM preparation
+\`\`\`bash
+source /opt/ros/jazzy/setup.bash
+source ~/amr_ws/install/setup.bash
+ros2 topic list
+ros2 topic echo /scan --once
+ros2 topic echo /odom --once
+\`\`\`
 
-A starter SLAM Toolbox configuration and launch file are included. After the simulation is verified and `/scan`, `/odom`, and TF are confirmed, start mapping with:
+## 5. Teleoperate (after confirming /cmd_vel and wheel motion)
 
-```bash
+\`\`\`bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+\`\`\`
+
+If keyboard teleop publishes a different velocity topic, remap it to /cmd_vel.
+
+## 6. Start SLAM mapping (after /scan, /odom, and TF are verified)
+
+\`\`\`bash
 ros2 launch mobile_robot_description slam.launch.py
-```
+\`\`\`
 
-Save a map only after confirming that the robot moves correctly and the map updates consistently.
+Save a map from a separate terminal:
 
-## Project status
+\`\`\`bash
+ros2 run nav2_map_server map_saver_cli -f ~/amr_map
+\`\`\`
 
-**Implementation in progress — not yet locally tested.** Files are being developed through GitHub because local ROS 2/Gazebo execution is not currently available. No feature is described as working until it has been built and tested.
+## 7. Start Nav2 (after a map exists and frame/topic configuration is checked)
 
-See [docs/gazebo-simulation.md](docs/gazebo-simulation.md) and [docs/roadmap.md](docs/roadmap.md).
+\`\`\`bash
+ros2 launch mobile_robot_description navigation.launch.py
+\`\`\`
+
+This launch entry point uses Nav2's standard parameter file as a starter. For reliable autonomous navigation, the costmaps, footprint, scan topic, frames, controller limits, and map/SLAM integration must be reviewed and tuned for this robot before use.
+
+## Repository structure
+
+\`\`\`text
+src/mobile_robot_description/
+├── config/       # bridge, EKF, SLAM parameters
+├── launch/       # RViz, Gazebo, SLAM and Nav2 entry points
+├── rviz/         # RViz configuration
+├── urdf/         # robot model and sensor configuration
+└── worlds/       # Gazebo world
+docs/             # roadmap and validation instructions
+.github/workflows # ROS 2 CI workflow
+\`\`\`
+
+## Milestones
+
+1. Robot model and RViz visualization
+2. Gazebo spawn, drive control, and topic validation
+3. LiDAR, odometry, and TF validation
+4. SLAM mapping and map saving
+5. Nav2 goal navigation and obstacle avoidance
+
+See [roadmap](docs/roadmap.md) and [simulation validation guide](docs/gazebo-simulation.md).
+
+## Engineering honesty
+
+The model and sensor are simulated and are not a validated hardware design. A feature is not considered complete until it has been built, run, and checked.
