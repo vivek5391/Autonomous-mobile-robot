@@ -1,56 +1,89 @@
-# Gazebo Simulation and SLAM — Implementation in Progress
+# Simulation, LiDAR, SLAM, and Nav2 Validation
 
-## Configured in the repository
+## Target environment
 
-- Gazebo Sim world launch.
-- Differential-drive plugin configuration in the robot Xacro.
-- A simulated 2D GPU LiDAR intended to publish `/scan`.
-- Initial launch pipeline to publish `robot_description`, spawn the robot, and start `ros_gz_bridge`.
-- Bridge configuration for `/cmd_vel`, `/odom`, and `/scan`.
-- Starter SLAM Toolbox mapping parameters and a `slam.launch.py` launch file.
+- Ubuntu 24.04
+- ROS 2 Jazzy
+- Gazebo Sim Harmonic
 
-## Important test status
+## Status
 
-These files were edited through GitHub and have **not been built or run locally**. Treat them as implementation drafts, not a verified working simulation. The target environment is Ubuntu 24.04, ROS 2 Jazzy, and Gazebo Sim Harmonic.
+The repository now contains a Gazebo world, a robot-spawn launch pipeline, a simulated 2D GPU LiDAR, bridge configuration, an EKF configuration, a SLAM Toolbox launch entry point, and a Nav2 launch entry point. These have been edited through GitHub but **have not been run locally yet**.
 
-## Install and build
+## Build
 
-    sudo apt update
-    sudo apt install ros-jazzy-xacro ros-jazzy-robot-state-publisher ros-jazzy-ros-gz-sim ros-jazzy-ros-gz-bridge ros-jazzy-slam-toolbox
-    source /opt/ros/jazzy/setup.bash
-    cd ~/amr_ws
-    colcon build --symlink-install
-    source install/setup.bash
+Install the dependencies listed in the main README, then run:
 
-## Start Gazebo
+\`\`\`bash
+source /opt/ros/jazzy/setup.bash
+cd ~/amr_ws
+rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
+colcon build --symlink-install
+source install/setup.bash
+\`\`\`
 
-    ros2 launch mobile_robot_description gazebo_world.launch.py
+## Validation order
 
-Check the topics in a second terminal:
+1. Start Gazebo:
 
-    source /opt/ros/jazzy/setup.bash
-    source ~/amr_ws/install/setup.bash
-    ros2 topic list
-    ros2 topic echo /scan --once
-    ros2 topic echo /odom --once
+   \`\`\`bash
+   ros2 launch mobile_robot_description gazebo_world.launch.py
+   \`\`\`
 
-## Start mapping — only after simulation checks pass
+2. Check the basic topics in another sourced terminal:
 
-In another terminal:
+   \`\`\`bash
+   ros2 topic list
+   ros2 topic echo /clock --once
+   ros2 topic echo /scan --once
+   ros2 topic echo /odom/raw --once
+   ros2 topic echo /odom --once
+   \`\`\`
 
-    source /opt/ros/jazzy/setup.bash
-    source ~/amr_ws/install/setup.bash
-    ros2 launch mobile_robot_description slam.launch.py
+3. Confirm TF is connected:
 
-SLAM needs a valid scan stream and a correct transform chain between `map`, `odom`, and `base_footprint`. If the robot does not spawn, the topics are absent, or the transform chain is broken, SLAM will not work yet; save the terminal errors for debugging.
+   \`\`\`bash
+   ros2 run tf2_tools view_frames
+   \`\`\`
 
-## Validation checklist
+4. Send a low-speed command only after confirming the robot has spawned:
 
-1. Confirm the robot appears in Gazebo.
-2. Confirm `/scan` produces LaserScan messages.
-3. Confirm `/odom` produces odometry messages.
-4. Confirm the TF tree is connected.
-5. Send a small velocity command and verify the robot moves.
-6. Only then test SLAM mapping and map saving.
+   \`\`\`bash
+   ros2 topic pub --rate 2 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.05}, angular: {z: 0.0}}"
+   \`\`\`
 
-The LiDAR is simulated and is not a hardware specification. No feature is marked tested until it has been run.
+   Stop publishing with Ctrl+C. Confirm the robot actually moves in Gazebo.
+
+5. Test keyboard control:
+
+   \`\`\`bash
+   ros2 run teleop_twist_keyboard teleop_twist_keyboard
+   \`\`\`
+
+6. Start SLAM only after sensor, odometry, and TF checks pass:
+
+   \`\`\`bash
+   ros2 launch mobile_robot_description slam.launch.py
+   \`\`\`
+
+7. Save a map after it has visibly updated:
+
+   \`\`\`bash
+   ros2 run nav2_map_server map_saver_cli -f ~/amr_map
+   \`\`\`
+
+8. Review Nav2 parameters and the map/SLAM integration before starting navigation:
+
+   \`\`\`bash
+   ros2 launch mobile_robot_description navigation.launch.py
+   \`\`\`
+
+## Common failure checks
+
+- If the robot fails to spawn, inspect the Gazebo and ros_gz_sim create terminal output.
+- If /scan is absent, inspect the Gazebo sensor and bridge logs.
+- If /odom is absent, check /odom/raw and the EKF node.
+- If SLAM reports transform errors, inspect the map, odom, base_footprint, and lidar_link transform chain.
+- Do not claim autonomous navigation works until a map, TF, localization, and controller behavior have all been checked.
+
+The LiDAR and robot are simulated; this is not a validated physical robot design.
