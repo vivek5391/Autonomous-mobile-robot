@@ -30,9 +30,7 @@ sudo apt install ros-jazzy-xacro ros-jazzy-robot-state-publisher ros-jazzy-joint
 Create a workspace and clone this repository:
 
 ```bash
-mkdir -p ~/amr_ws/src
-cd ~/amr_ws/src
-git clone https://github.com/vivek5391/Autonomous-mobile-robot.git
+git clone https://github.com/vivek5391/Autonomous-mobile-robot.git ~/amr_ws
 cd ~/amr_ws
 source /opt/ros/jazzy/setup.bash
 colcon build --symlink-install
