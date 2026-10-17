@@ -1,31 +1,40 @@
 # Development Roadmap
 
 ## Milestone 1 — Robot description
-- [x] Create a differential-drive robot Xacro model
-- [x] Add a launch file for RViz visualization
-- [ ] Build and test on Ubuntu 24.04 + ROS 2 Jazzy
+- [x] Create differential-drive URDF/Xacro model
+- [x] Add RViz visualization launch and configuration
+- [ ] Pass CI build and expand Xacro successfully
 
-## Milestone 2 — Motion and simulation
-- [x] Add a Gazebo Sim differential-drive plugin configuration
-- [x] Add an initial Gazebo launch pipeline for robot spawning
-- [ ] Build and test the Gazebo spawn pipeline
-- [ ] Drive the robot with keyboard teleoperation
+## Milestone 2 — Simulation and motion
+- [x] Add Gazebo Sim world and differential-drive plugin configuration
+- [x] Add robot-spawn and bridge launch pipeline
+- [ ] Confirm robot spawns correctly in Gazebo Harmonic
+- [ ] Verify wheel motion with /cmd_vel
+- [ ] Test keyboard teleoperation
 
-## Milestone 3 — Sensors and odometry
-- [x] Add a simulated 2D LiDAR model and bridge configuration
-- [x] Add initial Gazebo-to-ROS bridge configuration for odometry
-- [ ] Verify /scan, /odom, and TF topics in a running simulation
+## Milestone 3 — LiDAR, odometry, and TF
+- [x] Add simulated 2D GPU LiDAR model
+- [x] Configure /scan, raw odometry, and simulation clock bridges
+- [x] Add starter robot_localization EKF configuration
+- [ ] Verify /scan, /odom, /clock, and TF in a running simulation
 
 ## Milestone 4 — Mapping
 - [x] Add starter SLAM Toolbox parameters and launch file
-- [ ] Run SLAM Toolbox with a verified live /scan and odometry/TF
+- [ ] Run SLAM with verified sensor data and TF
 - [ ] Save and reload a map
 
 ## Milestone 5 — Autonomous navigation
-- [ ] Configure Nav2
-- [ ] Send navigation goals in RViz
-- [ ] Tune costmaps and verify obstacle avoidance
+- [x] Add a Nav2 launch entry point
+- [ ] Configure/tune Nav2 frames, costmaps, footprint, and velocity limits
+- [ ] Send goals in RViz
+- [ ] Verify obstacle avoidance in simulation
+
+## Milestone 6 — Quality and portfolio
+- [x] Add GitHub Actions ROS 2 Jazzy build workflow
+- [ ] Get a green CI run and fix all build/Xacro errors
+- [ ] Add screenshots or a short simulation demo only after the run is successful
+- [ ] Document exact tested OS, ROS, and Gazebo versions
 
 ## Working rule
 
-Only mark a feature complete after it has been run and checked. The current simulation, sensor, and SLAM files are implementation drafts until tested on Ubuntu 24.04 + ROS 2 Jazzy + Gazebo Sim Harmonic. This is a simulation learning model, not a validated physical robot design.
+Files and launch entry points are implementation drafts until CI and local simulation checks pass. Never mark simulation, mapping, or navigation as tested based only on committed files. This is a learning/portfolio model, not a validated physical robot.
