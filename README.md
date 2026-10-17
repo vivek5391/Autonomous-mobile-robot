@@ -17,7 +17,7 @@ A simulation-first differential-drive autonomous mobile robot portfolio project.
 
 On Ubuntu 24.04 with ROS 2 Jazzy configured:
 
-\`\`\`bash
+```bash
 sudo apt update
 sudo apt install \
   ros-jazzy-xacro \
@@ -30,11 +30,11 @@ sudo apt install \
   ros-jazzy-slam-toolbox \
   ros-jazzy-nav2-bringup \
   ros-jazzy-teleop-twist-keyboard
-\`\`\`
+```
 
 ## 2. Clone and build
 
-\`\`\`bash
+```bash
 mkdir -p ~/amr_ws/src
 cd ~/amr_ws/src
 git clone https://github.com/vivek5391/Autonomous-mobile-robot.git
@@ -43,63 +43,63 @@ source /opt/ros/jazzy/setup.bash
 rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
 colcon build --symlink-install
 source install/setup.bash
-\`\`\`
+```
 
 ## 3. View the robot model in RViz
 
-\`\`\`bash
+```bash
 ros2 launch mobile_robot_description display.launch.py
-\`\`\`
+```
 
 If the model is missing, check the RViz Fixed Frame (base_footprint) and the RobotModel display.
 
 ## 4. Start Gazebo simulation
 
-\`\`\`bash
+```bash
 ros2 launch mobile_robot_description gazebo_world.launch.py
-\`\`\`
+```
 
 Check topics in another terminal:
 
-\`\`\`bash
+```bash
 source /opt/ros/jazzy/setup.bash
 source ~/amr_ws/install/setup.bash
 ros2 topic list
 ros2 topic echo /scan --once
 ros2 topic echo /odom --once
-\`\`\`
+```
 
 ## 5. Teleoperate (after confirming /cmd_vel and wheel motion)
 
-\`\`\`bash
+```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
-\`\`\`
+```
 
 If keyboard teleop publishes a different velocity topic, remap it to /cmd_vel.
 
 ## 6. Start SLAM mapping (after /scan, /odom, and TF are verified)
 
-\`\`\`bash
+```bash
 ros2 launch mobile_robot_description slam.launch.py
-\`\`\`
+```
 
 Save a map from a separate terminal:
 
-\`\`\`bash
+```bash
 ros2 run nav2_map_server map_saver_cli -f ~/amr_map
-\`\`\`
+```
 
 ## 7. Start Nav2 (after a map exists and frame/topic configuration is checked)
 
-\`\`\`bash
+```bash
 ros2 launch mobile_robot_description navigation.launch.py
-\`\`\`
+```
 
 This launch entry point uses Nav2's standard parameter file as a starter. For reliable autonomous navigation, the costmaps, footprint, scan topic, frames, controller limits, and map/SLAM integration must be reviewed and tuned for this robot before use.
 
 ## Repository structure
 
-\`\`\`text
+```text
 src/mobile_robot_description/
 ├── config/       # bridge, EKF, SLAM parameters
 ├── launch/       # RViz, Gazebo, SLAM and Nav2 entry points
@@ -108,7 +108,7 @@ src/mobile_robot_description/
 └── worlds/       # Gazebo world
 docs/             # roadmap and validation instructions
 .github/workflows # ROS 2 CI workflow
-\`\`\`
+```
 
 ## Milestones
 
