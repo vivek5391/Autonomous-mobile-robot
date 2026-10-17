@@ -2,7 +2,7 @@
 <package format="3">
   <name>mobile_robot_description</name>
   <version>0.1.0</version>
-  <description>URDF/Xacro description and RViz launch files for a differential-drive mobile robot with LiDAR.</description>
+  <description>URDF/Xacro description, Gazebo simulation, LiDAR, and SLAM preparation for a differential-drive mobile robot.</description>
   <maintainer email="maintainer@example.com">Vivek</maintainer>
   <license>MIT</license>
 
@@ -17,6 +17,7 @@
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>nav_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>slam_toolbox</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
