@@ -1,49 +1,56 @@
-# Gazebo Simulation — Implementation in Progress
+# Gazebo Simulation and SLAM — Implementation in Progress
 
-## What is now configured in the repository
+## Configured in the repository
 
 - Gazebo Sim world launch.
-- A differential-drive plugin in the robot Xacro.
-- A 2D GPU LiDAR model publishing the Gazebo `/scan` topic.
-- A launch pipeline intended to publish `robot_description`, spawn the robot, and start `ros_gz_bridge`.
+- Differential-drive plugin configuration in the robot Xacro.
+- A simulated 2D GPU LiDAR intended to publish `/scan`.
+- Initial launch pipeline to publish `robot_description`, spawn the robot, and start `ros_gz_bridge`.
 - Bridge configuration for `/cmd_vel`, `/odom`, and `/scan`.
+- Starter SLAM Toolbox mapping parameters and a `slam.launch.py` launch file.
 
 ## Important test status
 
-These files were edited through GitHub and have **not been built or run locally yet**. Treat this as implementation in progress, not a verified working simulation. Gazebo Sim Harmonic and the matching ROS 2 Jazzy integration packages must be installed.
+These files were edited through GitHub and have **not been built or run locally**. Treat them as implementation drafts, not a verified working simulation. The target environment is Ubuntu 24.04, ROS 2 Jazzy, and Gazebo Sim Harmonic.
 
-## Build and launch on Ubuntu 24.04 + ROS 2 Jazzy
-
-Install the packages:
+## Install and build
 
     sudo apt update
-    sudo apt install ros-jazzy-xacro ros-jazzy-robot-state-publisher ros-jazzy-ros-gz-sim ros-jazzy-ros-gz-bridge
-
-Build from the workspace root:
-
+    sudo apt install ros-jazzy-xacro ros-jazzy-robot-state-publisher ros-jazzy-ros-gz-sim ros-jazzy-ros-gz-bridge ros-jazzy-slam-toolbox
     source /opt/ros/jazzy/setup.bash
+    cd ~/amr_ws
     colcon build --symlink-install
     source install/setup.bash
 
-Launch:
+## Start Gazebo
 
     ros2 launch mobile_robot_description gazebo_world.launch.py
 
-In a second terminal, inspect topics:
+Check the topics in a second terminal:
 
     source /opt/ros/jazzy/setup.bash
-    source install/setup.bash
+    source ~/amr_ws/install/setup.bash
     ros2 topic list
     ros2 topic echo /scan --once
+    ros2 topic echo /odom --once
 
-If the robot does not appear or the scan topic is missing, capture the terminal error output before changing plugin or bridge settings.
+## Start mapping — only after simulation checks pass
 
-## Next validation checks
+In another terminal:
 
-1. Confirm the robot spawns in Gazebo.
+    source /opt/ros/jazzy/setup.bash
+    source ~/amr_ws/install/setup.bash
+    ros2 launch mobile_robot_description slam.launch.py
+
+SLAM needs a valid scan stream and a correct transform chain between `map`, `odom`, and `base_footprint`. If the robot does not spawn, the topics are absent, or the transform chain is broken, SLAM will not work yet; save the terminal errors for debugging.
+
+## Validation checklist
+
+1. Confirm the robot appears in Gazebo.
 2. Confirm `/scan` produces LaserScan messages.
 3. Confirm `/odom` produces odometry messages.
-4. Send a very small velocity command and verify wheel motion.
-5. Only after these pass, add teleoperation and SLAM Toolbox.
+4. Confirm the TF tree is connected.
+5. Send a small velocity command and verify the robot moves.
+6. Only then test SLAM mapping and map saving.
 
-The LiDAR is a simulated sensor; it is not a hardware specification.
+The LiDAR is simulated and is not a hardware specification. No feature is marked tested until it has been run.
