@@ -16,6 +16,9 @@ def generate_launch_description():
     bridge_config = PathJoinSubstitution([
         package_share, 'config', 'ros_gz_bridge.yaml'
     ])
+    ekf_config = PathJoinSubstitution([
+        package_share, 'config', 'ekf.yaml'
+    ])
     robot_description = Command(['xacro', ' ', xacro_file])
 
     return LaunchDescription([
@@ -33,7 +36,10 @@ def generate_launch_description():
             executable='robot_state_publisher',
             name='robot_state_publisher',
             output='screen',
-            parameters=[{'robot_description': robot_description}],
+            parameters=[{
+                'robot_description': robot_description,
+                'use_sim_time': True,
+            }],
         ),
         Node(
             package='ros_gz_bridge',
@@ -41,6 +47,14 @@ def generate_launch_description():
             name='ros_gz_bridge',
             output='screen',
             parameters=[{'config_file': bridge_config}],
+        ),
+        Node(
+            package='robot_localization',
+            executable='ekf_node',
+            name='ekf_filter_node',
+            output='screen',
+            parameters=[ekf_config, {'use_sim_time': True}],
+            remappings=[('/odometry/filtered', '/odom')],
         ),
         # Give Gazebo a moment to start before spawning the robot.
         TimerAction(
@@ -54,7 +68,7 @@ def generate_launch_description():
                     arguments=[
                         '-name', 'mobile_robot',
                         '-topic', 'robot_description',
-                        '-z', '0.08',
+                        '-z', '0.0',
                     ],
                 )
             ],
